@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flask</title>
+</head>
+<body>
+    <h1>
+        Books
+    </h1>
+    <table>
+        <thead>
+           <td>Title</td>
+           <td>Author</td>
+        </thead>
+
+        {% for book in books %}
+           <tr>
+              <td>{{book[0]}}</td>
+              <td>{{book[1]}}</td>
+           </tr>
+        {% endfor %}
+     </table>
+
+    {% block content %} {% endblock %}
+</body>
+</html>
