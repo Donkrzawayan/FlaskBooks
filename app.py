@@ -3,7 +3,7 @@ import sqlite3
 from flask import Flask, render_template, request, session
 from flask_session import Session
 
-app = Flask("Flask - Lab")
+app = Flask("FlaskBooks")
 
 # Tworzenie obsługi sesji
 sess = Session()
@@ -15,19 +15,23 @@ DATABASE = 'database.db'
 @app.route('/create_database', methods=['GET', 'POST'])
 def create_db():
     # Połączenie sie z bazą danych
-    conn = sqlite3.connect(DATABASE)
+    con = sqlite3.connect(DATABASE)
     # Stworzenie tabeli w bazie danych za pomocą sqlite3
-    conn.execute('CREATE TABLE IF NOT EXISTS books (title TEXT, author TEXT)')
-    conn.execute('CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT, UNIQUE(username));')
-    conn.execute("INSERT INTO users (username, password) VALUES('admin', 'admin')")
+    con.execute("CREATE TABLE IF NOT EXISTS books (title TEXT, author TEXT)")
+    con.execute("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, password TEXT, administrator INTEGER)")
+    con.execute("INSERT OR IGNORE INTO users (username, password, administrator) VALUES('admin', 'admin', TRUE)")
+    con.commit()
     # Zakończenie połączenia z bazą danych
-    conn.close()
+    con.close()
 
     return index()
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    if 'user' not in session:
+        return render_template('login.html')
+
     con = sqlite3.connect(DATABASE)
 
     # Pobranie danych z tabeli
@@ -35,9 +39,9 @@ def index():
     cur.execute("select * from books")
     books = cur.fetchall()
 
-    if 'user' in session:
-        return render_template('loggedIndex.html', books=books)
-    return render_template('login.html', books=books)
+    if 'admin' in session:
+        return render_template('adminIndex.html', books=books)
+    return render_template('index.html', books=books)
 
 
 @app.route('/addBook', methods=['POST'])
@@ -45,7 +49,7 @@ def add_book():
     title = request.form['title']
     author = request.form['author']
 
-    # Dodanie użytkownika do bazy danych
+    # Dodanie book do bazy danych
     con = sqlite3.connect(DATABASE)
     cur = con.cursor()
     cur.execute("INSERT INTO books (title, author) VALUES (?,?)", (title, author))
@@ -60,15 +64,15 @@ def login():
     username = request.form['login']
     password = request.form['password']
 
-    # Dodanie użytkownika do bazy danych
     con = sqlite3.connect(DATABASE)
     cur = con.cursor()
-    cur.execute("SELECT * FROM users")
-    #cur.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
-    user = cur.fetchall()
+    cur.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+    user = cur.fetchone()
 
     if user:
         session['user'] = "username"
+        if user[2]:
+            session['admin'] = "admin"
 
     return index()
 
@@ -78,7 +82,44 @@ def logout():
     # Jeżeli sesja klienta istnieje - usunięcie sesji
     if 'user' in session:
         session.pop('user')
+    if 'admin' in session:
+        session.pop('admin')
     return index()
+
+
+@app.route('/users', methods=['GET', 'POST'])
+def users():
+    con = sqlite3.connect(DATABASE)
+    cur = con.cursor()
+    cur.execute("SELECT * FROM users")
+    _users = cur.fetchall()
+
+    return render_template('users.html', users=_users)
+
+
+@app.route('/users/<username>', methods=['GET'])
+def user(username):
+    con = sqlite3.connect(DATABASE)
+    cur = con.cursor()
+    cur.execute("SELECT * FROM users WHERE username=?", (username,))
+    _user = cur.fetchone()
+
+    return render_template('user.html', user=_user)
+
+
+@app.route('/addUser', methods=['POST'])
+def add_user():
+    login = request.form['login']
+    password = request.form['password']
+    admin = 'admin' in request.form
+    # Dodanie użytkownika do bazy danych
+    con = sqlite3.connect(DATABASE)
+    cur = con.cursor()
+    cur.execute("INSERT INTO users (username, password, administrator) VALUES (?,?,?)", (login, password, admin))
+    con.commit()
+    con.close()
+
+    return "Dodano użytkownika do bazy danych <br>" + users()
 
 
 app.secret_key = 'super secret key'

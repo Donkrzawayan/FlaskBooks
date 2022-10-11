@@ -1,6 +1,9 @@
 ### SQLite Database
 database.db
 
+#Flask Session
+flask_session
+
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Flask</title>
+    <title>FlaskBooks</title>
 </head>
 <body>
+    <a href=/ >FlaskBooks</a>
+    {% block admin %} {% endblock %}
+    <a href=/logout >Logout</a>
+
     <h1>
         Books
     </h1>
@@ -22,6 +26,13 @@
         {% endfor %}
      </table>
 
-    {% block content %} {% endblock %}
+    <h1>
+        Add book
+    </h1>
+    <form method=post action="/addBook">
+        Title: <input type=text name=title>
+        Author: <input type=text name=author>
+        <input type=submit>
+    </form>
 </body>
 </html>

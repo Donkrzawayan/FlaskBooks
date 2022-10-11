@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlaskBooks - Users</title>
+</head>
+<body>
+    <a href=/ >FlaskBooks</a>
+    <h1>
+        Add user
+    </h1>
+    <form method=post action="/addUser">
+        Username: <input type=text name=login>
+        Password: <input type=password name=password>
+        Administrator: <input type="checkbox" name=admin>
+        <input type=submit>
+    </form>
+    <h1>
+        Users
+    </h1>
+    <table>
+        <thead>
+           <td>Title</td>
+           <td>Author</td>
+           <td>Administrator</td>
+        </thead>
+
+        {% for user in users %}
+           <tr>
+              <td><a href=/users/{{user[0]}}>{{user[0]}}</a></td>
+              <td>{{user[1]}}</td>
+              <td>{{user[2]}}</td>
+           </tr>
+        {% endfor %}
+     </table>
+</body>
+</html>
