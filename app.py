@@ -74,9 +74,9 @@ def login():
     user = cur.fetchone()
 
     if user:
-        session['user'] = "username"
-        if user[2]:
-            session['admin'] = "admin"
+        session['user'] = username
+        if user[3]:
+            session['admin'] = username
 
     return index()
 
@@ -140,5 +140,4 @@ app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 sess.init_app(app)
 app.config.from_object(__name__)
-app.debug = True
 app.run()
