@@ -18,7 +18,11 @@ def create_db():
     con = sqlite3.connect(DATABASE)
     # Stworzenie tabeli w bazie danych za pomocą sqlite3
     con.execute("CREATE TABLE IF NOT EXISTS books (title TEXT, author TEXT)")
-    con.execute("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, password TEXT, administrator INTEGER)")
+    con.execute("CREATE TABLE IF NOT EXISTS users ("
+                "id INTEGER NOT NULL PRIMARY KEY, "
+                "username TEXT UNIQUE, "
+                "password TEXT, "
+                "administrator INTEGER)")
     con.execute("INSERT OR IGNORE INTO users (username, password, administrator) VALUES('admin', 'admin', TRUE)")
     con.commit()
     # Zakończenie połączenia z bazą danych
@@ -98,10 +102,20 @@ def users():
 
 
 @app.route('/users/<username>', methods=['GET'])
-def user(username):
+def user_by_username(username):
     con = sqlite3.connect(DATABASE)
     cur = con.cursor()
     cur.execute("SELECT * FROM users WHERE username=?", (username,))
+    _user = cur.fetchone()
+
+    return render_template('user.html', user=_user)
+
+
+@app.route('/users/<int:get_id>', methods=['GET'])
+def user_by_id(get_id):
+    con = sqlite3.connect(DATABASE)
+    cur = con.cursor()
+    cur.execute("SELECT * FROM users WHERE id=?", (get_id,))
     _user = cur.fetchone()
 
     return render_template('user.html', user=_user)

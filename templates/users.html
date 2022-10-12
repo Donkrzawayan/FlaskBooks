@@ -20,6 +20,7 @@
     </h1>
     <table>
         <thead>
+           <td>ID</td>
            <td>Title</td>
            <td>Author</td>
            <td>Administrator</td>
@@ -28,8 +29,9 @@
         {% for user in users %}
            <tr>
               <td><a href=/users/{{user[0]}}>{{user[0]}}</a></td>
-              <td>{{user[1]}}</td>
+              <td><a href=/users/{{user[1]}}>{{user[1]}}</a></td>
               <td>{{user[2]}}</td>
+              <td>{{user[3]}}</td>
            </tr>
         {% endfor %}
      </table>
