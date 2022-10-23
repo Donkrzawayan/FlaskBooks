@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect
 from flask_session import Session
 
 app = Flask("FlaskBooks")
@@ -28,7 +28,7 @@ def create_db():
     # Zakończenie połączenia z bazą danych
     con.close()
 
-    return index()
+    return redirect('/')
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -78,7 +78,7 @@ def login():
         if user[3]:
             session['admin'] = username
 
-    return index()
+    return redirect('/')
 
 
 @app.route('/logout', methods=['GET'])
@@ -88,7 +88,7 @@ def logout():
         session.pop('user')
     if 'admin' in session:
         session.pop('admin')
-    return index()
+    return redirect('/')
 
 
 @app.route('/users', methods=['GET', 'POST'])
